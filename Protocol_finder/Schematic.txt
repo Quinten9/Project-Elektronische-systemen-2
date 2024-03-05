@@ -1,0 +1,4 @@
+"Ball" of sensor pointing to you.
+Left -> Signal -> P2
+Middle -> GND
+Right -> Vs -> 3.3V on Arduino Nano 33 BLE Sence
