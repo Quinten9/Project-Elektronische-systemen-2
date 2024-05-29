@@ -6,6 +6,9 @@
 #define IR_RECEIVE_PIN 2
 String msg = "";
 
+#define lightSensor A0 
+int sensorValue = 0;
+
 //I2C pin declaratie
 LiquidCrystal_I2C lcd(0x3F, 16, 2); //Opgelet met adres 0x27; 0x3F is voor de PCF8574A
 
@@ -14,9 +17,40 @@ bool newPress = false;
 
 int waitTime = 5000;
 
-//Zie gegevens PCF8574 of PCF8574A
-
 int modeCount = 0;
+int SerialReadModeCount = 0;
+
+int humidityVal = 0;
+int tempVal = 0;
+
+void Read_Light()
+{ 
+  //Lightsenor-read-mode is selected
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Light Value:");
+  lcd.setCursor(0,1);
+  sensorValue = analogRead(lightSensor);
+  msg = "";
+  msg += sensorValue;
+  lcd.print(msg);
+  delay(500);
+}
+
+void Read_Serial_Sens(){
+  msg = "";
+  lcd.clear();
+  lcd.setCursor(0,0);
+  msg +=  "Humidity: ";
+  msg += humidityVal;
+  lcd.print(msg);
+  msg = "";
+  lcd.setCursor(0,1);
+  msg +=  "Temperature: ";
+  msg += tempVal;
+  lcd.print(msg);
+  delay(500);
+}
 
 void setup()
 {
@@ -30,6 +64,18 @@ void setup()
 
 void loop()
 {
+  if(modeCount > 0){
+    Read_Light();
+    if(modeCount >= 7){
+      modeCount = 0;
+    }
+  }
+  else if(SerialReadModeCount > 0){
+    Read_Serial_Sens();
+    if(SerialReadModeCount >= 7){
+      SerialReadModeCount = 0;
+    }
+  }
   lcd.setCursor(0,0); //Defining positon to write from first row,first column .
   lcd.print("Pressed:"); //You can write 16 Characters per line.
 
@@ -58,39 +104,37 @@ void loop()
         break;
       case 13:
         msg = "MODE";
-        modeCount++;
-        Serial.println(modeCount);
-        if(modeCount > 0){
-          Serial.println("ModeCount > 0!");
-          if(modeCount >= 5){
-            Serial.println("ModeCount RESET!");
-            modeCount = 0;
-          }
-        }
-        if(modeCount == 0){
-          Serial.println("ModeCount = 0!");
-        }
         break;
       case 4:
         msg = "SET";
         break;
       case 70: 
         msg = "+ IN O"; 
+        modeCount++;
         break;
       case 85:
         msg = "ECO";
         break;  
       case 22: 
-        msg = "- IN O"; 
+        msg = "- IN O";
+        modeCount--;
+        if(modeCount < 0){
+          modeCount = 0;
+        }
         break;
       case 64:
         msg = "GRAFIEK";
         break;    
       case 25:
         msg = "+";
+        SerialReadModeCount++;
         break;  
       case 23:
         msg = "-";
+        SerialReadModeCount--;
+        if(SerialReadModeCount < 0){
+          SerialReadModeCount = 0;
+        }
         break;  
       case 30:
         msg = "WEEK";

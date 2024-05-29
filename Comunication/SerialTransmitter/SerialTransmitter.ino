@@ -23,7 +23,7 @@ void loop() {
   dataMSG += "   Humi: ";   
   dataMSG += humidity; 
 
-  Serial.println(dataMSG);
+  Serial.print(dataMSG);
 
   // print an empty line
   Serial.println();

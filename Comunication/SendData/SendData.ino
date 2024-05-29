@@ -59,4 +59,6 @@ void loop() {
   dataMSG += temperature;
   dataMSG += "\t Humidity:";
   dataMSG += humidity;
+
+  Serial.println(dataMSG);
 }
